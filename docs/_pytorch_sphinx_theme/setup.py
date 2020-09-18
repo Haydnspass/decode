@@ -11,7 +11,7 @@ setup(
     docs_url="https://github.com/pytorch/pytorch_sphinx_theme",
     description='PyTorch Sphinx Theme',
     py_modules = ['pytorch_sphinx_theme'],
-    packages = ['pytorch_sphinx_theme'],
+    packages = ['docs/_pytorch_sphinx_theme'],
     include_package_data=True,
     zip_safe=False,
     package_data={'pytorch_sphinx_theme': [
