@@ -12,4 +12,4 @@ python:
    version: 3.8  # will be ignored
    install:
       - methods: setuptools
-        path: docs/_pytorch_sphinx_theme
+      path: docs/_pytorch_sphinx_theme
