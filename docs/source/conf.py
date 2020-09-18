@@ -14,8 +14,8 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-# import pytorch_sphinx_theme
-import sphinx_rtd_theme
+import pytorch_sphinx_theme
+# import sphinx_rtd_theme
 
 # import guzzle_sphinx_theme
 # sys.path.insert(0, os.path.abspath('.'))
@@ -41,7 +41,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    # 'sphinx_rtd_theme',
     'recommonmark',
 ]
 
@@ -78,12 +78,13 @@ source_suffix = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = "sphinx_rtd_theme"
-# html_theme_path = ["/Users/lucasmueller/Repositories/pytorch_sphinx_theme"]
+# html_theme = "sphinx_rtd_theme"
+html_theme = "pytorch_sphinx_theme"
+# html_theme_path = ["pytorch_sphinx_theme"]
 
 html_theme_options = {
     # Set the name of the project to appear in the sidebar
-    "project_nav_name": "DECODE",
+    # "project_nav_name": "DECODE",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
