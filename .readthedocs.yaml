@@ -11,5 +11,5 @@ sphinx:
 python:
    version: 3.8  # will be ignored
    install:
-      - methods: setuptools
+      - method: setuptools
       path: docs/_pytorch_sphinx_theme
