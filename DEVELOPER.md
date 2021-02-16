@@ -1,16 +1,12 @@
 ## Instructions for Developers
 
 0. Clone the repository
-1. Install conda environment from file and activate it. Use the respective environment depending on whether you have a CUDA GPU or not.
+1. Install conda environment from the requirements files and activate it. Use the respective environment depending on whether you have a CUDA GPU or not.
 The cubic spline psf is pre-compiled in a different repo / as a separate package and will be installed automatically.
-
+      
         # CUDA
-        conda env create -f environment_cuda.yml
-        conda activate decode_dev_cuda 
-
-        # CPU / macOS
-        conda env create -f environment_cpu.yml
-        conda activate decode_dev_cpu
+        conda create -n decode_dev --file requirements.txt --file requirements_dev.txt [cudatoolkit=10.1 / cpuonly] [--file requirements_docs.txt] -c turagalab/label/dev -c turagalab -c pytorch -c conda-forge -c defaults
+        conda activate decode_dev
 
 3. Test whether everything works as expected. Note that if you run all tests, all files from the gateway file will be downloaded but you can exclude these tests.
 
@@ -31,8 +27,7 @@ It has been factored out in a seperate Repo to make life easier (see https://git
 ### Building the Docs
 For this we provide a conda environment for the sake of easy use. 
 ```bash
-conda env create -f environment_docs.yaml  # once
-conda activate decode_docs
+conda activate decode_dev
 
 cd docs
 make html

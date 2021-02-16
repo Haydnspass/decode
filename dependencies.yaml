@@ -37,6 +37,7 @@ docs:
 pip:
   run:
     - pytorch=1.7.1 : torch=1.7.1
+    - spline>=0.10.alpha : https://github.com/TuragaLab/SplinePSF/releases/download/v0.10.0.alpha.1/spline-0.10.0a1-cp36-cp36m-linux_x86_64.whl
 
 conda:
   channels:

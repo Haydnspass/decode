@@ -78,10 +78,20 @@ def test_conda_meta():
     assert 'tifffile>=2021.1' not in out['run']
 
 
+@pytest.mark.parametrize("recurse", [None, 'requirements.txt'])
 @pytest.mark.parametrize("level", ['run', 'dev', 'docs'])
-def test_pip(level):
+def test_pip(level, recurse):
 
-    out = dep.pip(run_deps, dev_deps, doc_deps, pip, level)
+    if recurse is not None and level == 'run':  # skip this combination
+        return
+
+    out = dep.pip(run_deps, dev_deps, doc_deps, pip, level, recurse)
+
+    if recurse is not None:
+        recurse_txt = out[0]
+        out = out[1:]
+
+        assert recurse_txt == '-r requirements.txt'
 
     if level == 'run':
 
@@ -101,3 +111,7 @@ def test_pip(level):
 
         assert len(out) == 1
         assert 'sphinx' in out
+
+
+def test_parse():
+    dep.parse_dependency('/home/lucas/DeepSMLM/dependencies.yaml')

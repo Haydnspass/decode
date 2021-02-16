@@ -87,17 +87,28 @@ def conda_meta(run_deps, meta):
     return build
 
 
-def pip(run_deps, dev_deps, doc_deps, pip, level):
-
-    level = (level,) if not isinstance(level, tuple) else level
+def pip(run_deps, dev_deps, doc_deps, pip, level, recurse_run: str = None):
 
     deps = dict()
-    if 'run' in level:
-        deps.update(dict.fromkeys(run_deps))
-    if 'dev' in level:
-        deps.update(dict.fromkeys(dev_deps))
-    if 'docs' in level:
-        deps.update(dict.fromkeys(doc_deps))
+
+    if recurse_run is None:
+        level = (level,) if not isinstance(level, tuple) else level
+
+        if 'run' in level:
+            deps.update(dict.fromkeys(run_deps))
+        if 'dev' in level:
+            deps.update(dict.fromkeys(dev_deps))
+        if 'docs' in level:
+            deps.update(dict.fromkeys(doc_deps))
+
+    else:
+        deps.update({'-r ' + recurse_run: None})
+        if level == 'dev':
+            deps.update(dict.fromkeys(dev_deps))
+        elif level == 'docs':
+            deps.update(dict.fromkeys(doc_deps))
+        else:
+            raise ValueError
 
     deps = add_update_package(deps, pip, level)
 
@@ -116,3 +127,61 @@ def parse_dependency(path) -> dict:
 
     return data
 
+
+if __name__ == '__main__':
+    from pathlib import Path
+    import argparse
+    import textwrap
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--deps', '-d')
+    parser.add_argument('--meta', '-m')
+    parser.add_argument('--out', '-o')
+    args = parser.parse_args()
+
+    path_yaml = Path(args.deps)
+    path_meta = Path(args.meta)
+    path_out_dir = Path(args.out)
+
+    data = parse_dependency(path_yaml)
+
+    comment = '# This file or block is auto-generated and must not be edited directly. Refer to dependencies.yaml'
+
+    # generate requirements for pip
+    for level in ['run', 'dev', 'docs']:
+        file_suffix = level if isinstance(level, str) else f'{level[0]}_{level[1]}'
+
+        if level != 'run':
+            recurse_run = 'requirements_run.txt'
+        else:
+            recurse_run = None
+
+        out = pip(run_deps=data['run'], dev_deps=data['dev'], doc_deps=data['docs'],
+                  pip=data['pip'], level=level, recurse_run=recurse_run)
+
+        with (path_out_dir / f'requirements_{file_suffix}.txt').open(mode='w+') as outfile:
+            outfile.write(comment + '\n')
+            outfile.write("\n".join(out))
+
+    # generate conda environments
+    for level in ['run', 'dev', 'docs']:
+
+        out = conda(run_deps=data['run'], dev_deps=data['dev'], doc_deps=data['docs'],
+                    channels=data['conda']['channels'], level=level, mode='env')
+
+        with (path_out_dir / f'environment_{level}.yaml').open(mode='w+') as outfile:
+            outfile.write(comment + '\n')
+            yaml.dump(out, outfile, sort_keys=False)
+
+    # modify meta.yaml
+    meta = path_meta.read_text()
+    split_pattern = '# @AUTO_GENERATED'
+
+    meta_ = meta.split(split_pattern)
+    meta_.insert(1, split_pattern + '\nrequirements:\n')
+    meta_[2] = textwrap.indent(
+        yaml.dump(conda_meta(run_deps=data['run'], meta=data['conda-build']), sort_keys=False),
+        '  ')
+    meta_.insert(3, split_pattern)
+
+    (path_out_dir / 'meta.yaml').write_text(''.join(meta_))
